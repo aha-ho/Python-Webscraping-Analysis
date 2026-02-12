@@ -13,8 +13,8 @@ st.title("네이버 도서 검색 애플리케이션")
 
 # .env 파일에서 환경 변수 로드
 load_dotenv()
-client_id = os.getenv("NAVER_CLIENT_ID")
-client_secret = os.getenv("NAVER_CLIENT_SECRET")
+client_id = os.getenv("CLIENT_ID")
+client_secret = os.getenv("CLIENT_SECRET")
 
 headers = {
     'X-Naver-Client-Id': client_id,
@@ -92,8 +92,8 @@ def filter_books_by_publisher(df, publisher_name):
         return pd.DataFrame()
     
     # 컬럼 목록 필터링 ('image'와 'description' 제외) ['title','author'...]
-    columns_to_show = [col for col in df.columns if col not in ['image', 'description']]
-    
+    #columns_to_show = [col for col in df.columns if col not in ['image', 'description']]
+    columns_to_show = df.columns.drop(['image', 'description', 'link'])
     return (
         df.loc[df['publisher'].str.contains(publisher_name, na=False), columns_to_show]
           .reset_index(drop=True)
@@ -141,9 +141,11 @@ with tab1:
     if not st.session_state.books_df.empty:
         st.write("전체 검색 결과")
         # st.dataframe()에서 use_container_width=True를 설정하면 데이터프레임이 Streamlit 컨테이너의 전체 너비에 맞게 자동 확장됩니다.
-        st.dataframe(st.session_state.books_df, use_container_width=True)
+        render_books_df = st.session_state.books_df.loc[:,['title','author', 'discount', 'publisher']]
+        st.dataframe(render_books_df, use_container_width=True)
     else:
         st.info("검색 결과가 없습니다. 검색 버튼을 클릭하여 결과를 불러오세요.")
+
 
 # 탭 2: 할인 필터링
 with tab2:
